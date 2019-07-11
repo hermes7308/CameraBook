@@ -22,8 +22,9 @@
 
     <item
         android:id="@+id/menu_copy"
+        android:icon="?attr/actionModeCopyDrawable"
         android:title="Copy"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_clear"
