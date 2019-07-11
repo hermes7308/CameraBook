@@ -28,10 +28,9 @@ public class ImageTransferTask implements Runnable {
 
     @Override
     public void run() {
-        prepareTessData();
-
         sendStartSignal();
 
+        prepareTessData();
         String result = convertByOCR();
         sendResultText(result);
 
@@ -91,7 +90,7 @@ public class ImageTransferTask implements Runnable {
     private String convertByOCR() {
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 7;
+            options.inSampleSize = 1;
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath.getPath(), options);
 
             return convertBitmapToText(bitmap);
@@ -107,7 +106,7 @@ public class ImageTransferTask implements Runnable {
             TessBaseAPI tessBaseAPI = new TessBaseAPI();
             tessBaseAPI.init(FileManager.DATA_PATH, "eng");
             tessBaseAPI.setImage(bitmap);
-            tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890',.?;/@\" ");
+            tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890\'\",.?;:-/@");
 
             String result = tessBaseAPI.getUTF8Text();
             tessBaseAPI.end();
