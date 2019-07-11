@@ -107,6 +107,7 @@ public class ImageTransferTask implements Runnable {
             TessBaseAPI tessBaseAPI = new TessBaseAPI();
             tessBaseAPI.init(FileManager.DATA_PATH, "eng");
             tessBaseAPI.setImage(bitmap);
+            tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890',.?;/@\" ");
 
             String result = tessBaseAPI.getUTF8Text();
             tessBaseAPI.end();
