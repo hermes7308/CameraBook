@@ -15,9 +15,10 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -58,12 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView mTargetImage;
     private EditText mResultEditText;
-
-    private ImageButton mCaptureButton;
-    private ImageButton mGalleryButton;
-    private ImageButton mMediaPlayButton;
-    private ImageButton mCopyButton;
-    private ImageButton mClearButton;
 
     private AlertDialog.Builder alertDialogBuilder;
     private AlertDialog alertDialog;
@@ -123,20 +118,33 @@ public class MainActivity extends AppCompatActivity {
         mTargetImage = findViewById(R.id.targetImage);
         mResultEditText = findViewById(R.id.resultEditText);
 
-        mCaptureButton = findViewById(R.id.captureButton);
-        mGalleryButton = findViewById(R.id.galleryButton);
-        mMediaPlayButton = findViewById(R.id.mediaPlayButton);
-        mCopyButton = findViewById(R.id.copyButton);
-        mClearButton = findViewById(R.id.clearButton);
-
         alertDialogBuilder = new AlertDialog.Builder(this).setView(R.layout.progressbar_modal)
                 .setCancelable(false);
         alertDialog = alertDialogBuilder.create();
+    }
 
-        // Capture
-        mCaptureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+            textToSpeech = null;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_camera:
                 try {
                     String imagePath = FileManager.DATA_PATH + "/imgs";
                     File dir = new File(imagePath);
@@ -156,28 +164,16 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        });
-
-        mGalleryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                break;
+            case R.id.menu_gallery:
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
                 startActivityForResult(intent, GALLERY_CODE);
-            }
-        });
-
-        mMediaPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                break;
+            case R.id.menu_media_play:
                 textToSpeech.speak(mResultEditText.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-            }
-        });
-
-        mCopyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                break;
+            case R.id.menu_copy:
                 String text = mResultEditText.getText().toString();
 
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -185,28 +181,15 @@ public class MainActivity extends AppCompatActivity {
                 clipboard.setPrimaryClip(clip);
 
                 Toast.makeText(getApplicationContext(), "successful copy", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        mClearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                break;
+            case R.id.menu_clear:
                 mResultEditText.setText(StringUtils.EMPTY);
 
                 Toast.makeText(getApplicationContext(), "successful clear", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-            textToSpeech = null;
+                break;
         }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
