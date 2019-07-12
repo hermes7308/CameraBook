@@ -1,5 +1,6 @@
-package com.hermes.imagetovoice;
+package com.hermes.imagetovoice.ocr;
 
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -7,20 +8,22 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.hermes.imagetovoice.MainActivity;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ImageTransferTask implements Runnable {
+public class TessOCRTask implements Runnable {
     private MainActivity mainActivity;
     private Handler mainActivityHandler;
     private Uri imagePath;
 
-    public ImageTransferTask(MainActivity mainActivity, Uri imagePath) {
+    public TessOCRTask(MainActivity mainActivity, Uri imagePath) {
         this.mainActivity = mainActivity;
         this.mainActivityHandler = mainActivity.getHandler();
         this.imagePath = imagePath;
@@ -38,53 +41,16 @@ public class ImageTransferTask implements Runnable {
     }
 
     private void prepareTessData() {
+        String fileList[];
         try {
-            File dir = new File(FileManager.TESS_DATA);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            String fileList[] = mainActivity.getAssets().list("");
-
-            for (String fileName : fileList) {
-
-                if (!StringUtils.endsWith(fileName, ".traineddata")) {
-                    continue;
-                }
-
-                String pathToDataFile = FileManager.TESS_DATA + File.separator + fileName;
-                if (new File(pathToDataFile).exists()) {
-                    continue;
-                }
-
-                InputStream in = mainActivity.getAssets().open(fileName);
-                OutputStream out = new FileOutputStream(pathToDataFile);
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, len);
-                }
-                out.flush();
-
-                out.close();
-                in.close();
-            }
-
-        } catch (Exception e) {
+            fileList = mainActivity.getAssets().list("");
+        } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
-    }
 
-    private void sendFinishSignal() {
-        Message message = new Message();
-        message.what = MainActivity.HandlerCode.FINISH_OCR.getCode();
-        mainActivityHandler.sendMessage(message);
-    }
-
-    private void sendStartSignal() {
-        Message message = new Message();
-        message.what = MainActivity.HandlerCode.START_OCR.getCode();
-        mainActivityHandler.sendMessage(message);
+        AssetManager assetManager = mainActivity.getAssets();
+        TessFileManager.prepareTessData(fileList, assetManager);
     }
 
     private String convertByOCR() {
@@ -104,7 +70,7 @@ public class ImageTransferTask implements Runnable {
     private String convertBitmapToText(Bitmap bitmap) {
         try {
             TessBaseAPI tessBaseAPI = new TessBaseAPI();
-            tessBaseAPI.init(FileManager.DATA_PATH, "eng");
+            tessBaseAPI.init(TessFileManager.DATA_PATH, "eng");
             tessBaseAPI.setImage(bitmap);
             tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890\'\",.?;:-/@()");
 
@@ -116,6 +82,18 @@ public class ImageTransferTask implements Runnable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void sendFinishSignal() {
+        Message message = new Message();
+        message.what = MainActivity.HandlerCode.FINISH_OCR.getCode();
+        mainActivityHandler.sendMessage(message);
+    }
+
+    private void sendStartSignal() {
+        Message message = new Message();
+        message.what = MainActivity.HandlerCode.START_OCR.getCode();
+        mainActivityHandler.sendMessage(message);
     }
 
     private void sendResultText(String text) {

@@ -31,6 +31,8 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.hermes.imagetovoice.ocr.TessFileManager;
+import com.hermes.imagetovoice.ocr.TessOCRTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -55,13 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int IMAGE_CAPTURE_CODE = 1;
     private static final int GALLERY_CODE = 2;
 
-    private AdView mAdView;
-
     private ImageView mTargetImage;
     private EditText mResultEditText;
 
-    private AlertDialog.Builder alertDialogBuilder;
-    private AlertDialog alertDialog;
+    private AlertDialog progressBarAlertDialog;
 
     private Uri outputFileDir;
 
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
         // AdMob
         MobileAds.initialize(this, TEST_AD_ID);
-        mAdView = findViewById(R.id.adView);
+        AdView mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
         mAdView.setAdListener(new AdListener());
@@ -118,9 +117,10 @@ public class MainActivity extends AppCompatActivity {
         mTargetImage = findViewById(R.id.targetImage);
         mResultEditText = findViewById(R.id.resultEditText);
 
-        alertDialogBuilder = new AlertDialog.Builder(this).setView(R.layout.progressbar_modal)
-                .setCancelable(false);
-        alertDialog = alertDialogBuilder.create();
+        progressBarAlertDialog = new AlertDialog.Builder(this)
+                .setView(R.layout.progressbar_modal)
+                .setCancelable(false)
+                .create();
     }
 
     @Override
@@ -146,13 +146,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_camera:
                 try {
-                    String imagePath = FileManager.DATA_PATH + "/imgs";
-                    File dir = new File(imagePath);
-                    if (!dir.exists()) {
-                        dir.mkdirs();
-                    }
-
-                    String imageFilePath = imagePath + "/ocr.jpg";
+                    String imageFilePath = TessFileManager.initTessPathAndGetOutputPath();
                     outputFileDir = Uri.fromFile(new File(imageFilePath));
 
                     final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -226,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
                 setTargetImage(resultUri);
 
-                new Thread(new ImageTransferTask(this, resultUri)).start();
+                new Thread(new TessOCRTask(this, resultUri)).start();
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 result.getError().printStackTrace();
@@ -273,12 +267,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (HandlerCode.START_OCR.equals(msg.what)) {
-                alertDialog.show();
+                progressBarAlertDialog.show();
                 return;
             }
 
             if (HandlerCode.FINISH_OCR.equals(msg.what)) {
-                alertDialog.cancel();
+                progressBarAlertDialog.cancel();
                 return;
             }
         }
