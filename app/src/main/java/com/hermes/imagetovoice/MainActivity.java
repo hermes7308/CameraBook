@@ -15,9 +15,12 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -47,8 +50,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private static final String MY_AD_ID = "ca-app-pub-5539737498268274~4397298097";
@@ -61,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mResultEditText;
 
     private AlertDialog progressBarAlertDialog;
+    private AlertDialog ttsAlertDialog;
 
     private Uri outputFileDir;
 
@@ -80,6 +86,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // View initialize
+        mTargetImage = findViewById(R.id.targetImage);
+        mResultEditText = findViewById(R.id.resultEditText);
+
+        // AdMob
+        MobileAds.initialize(this, TEST_AD_ID);
+        AdView mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+        mAdView.setAdListener(new AdListener());
+
         // Permission
         Dexter.withActivity(this)
                 .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -96,31 +113,69 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .check();
 
+        // AlertDialog Modal
+        progressBarAlertDialog = new AlertDialog.Builder(this)
+                .setView(R.layout.progressbar_modal)
+                .setCancelable(false)
+                .create();
+
+        LayoutInflater inflater = getLayoutInflater();
+        View ttsModalView = inflater.inflate(R.layout.tts_modal, null);
+        ttsAlertDialog = new AlertDialog.Builder(this)
+                .setView(ttsModalView)
+                .setCancelable(false)
+                .create();
+
+        ttsModalView.findViewById(R.id.ttsCancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (textToSpeech.isSpeaking()) {
+                    textToSpeech.stop();
+                }
+
+                ttsAlertDialog.cancel();
+            }
+        });
+
         // TTS
         textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
-                    textToSpeech.setLanguage(Locale.ENGLISH);
+                    textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onStart(String s) {
+                            sendShowSignal();
+                        }
+
+                        @Override
+                        public void onDone(String s) {
+                            sendCancelSignal();
+                        }
+
+                        @Override
+                        public void onError(String s) {
+                            sendCancelSignal();
+                        }
+
+                        private void sendShowSignal() {
+                            Message message = new Message();
+                            message.what = HandlerCode.START_TTS.getCode();
+                            mHandler.sendMessage(message);
+                        }
+
+                        private void sendCancelSignal() {
+                            Message message = new Message();
+                            message.what = HandlerCode.FINISH_TTS.getCode();
+                            mHandler.sendMessage(message);
+                        }
+                    });
+
+                    // set Language
+                    textToSpeech.setLanguage(Locale.US);
                 }
             }
         });
-
-        // AdMob
-        MobileAds.initialize(this, TEST_AD_ID);
-        AdView mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-        mAdView.setAdListener(new AdListener());
-
-        // View initialize
-        mTargetImage = findViewById(R.id.targetImage);
-        mResultEditText = findViewById(R.id.resultEditText);
-
-        progressBarAlertDialog = new AlertDialog.Builder(this)
-                .setView(R.layout.progressbar_modal)
-                .setCancelable(false)
-                .create();
     }
 
     @Override
@@ -165,7 +220,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, GALLERY_CODE);
                 break;
             case R.id.menu_media_play:
-                textToSpeech.speak(mResultEditText.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+                String mostRecentUtteranceID = (new Random().nextInt() % 9999999) + ""; // "" is String force
+                HashMap<String, String> params = new HashMap<>();
+                params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, mostRecentUtteranceID);
+
+                textToSpeech.speak(mResultEditText.getText().toString(), TextToSpeech.QUEUE_FLUSH, params);
                 break;
             case R.id.menu_copy:
                 String text = mResultEditText.getText().toString();
@@ -275,6 +334,16 @@ public class MainActivity extends AppCompatActivity {
                 progressBarAlertDialog.cancel();
                 return;
             }
+
+            if (HandlerCode.START_TTS.equals(msg.what)) {
+                ttsAlertDialog.show();
+                return;
+            }
+
+            if (HandlerCode.FINISH_TTS.equals(msg.what)) {
+                ttsAlertDialog.cancel();
+                return;
+            }
         }
     };
 
@@ -285,7 +354,9 @@ public class MainActivity extends AppCompatActivity {
     public enum HandlerCode {
         SET_RESULT(1),
         START_OCR(2),
-        FINISH_OCR(3);
+        FINISH_OCR(3),
+        START_TTS(4),
+        FINISH_TTS(5);
 
         private int code;
 
