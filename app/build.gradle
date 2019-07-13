@@ -18,6 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/'] } }
 }
 
 dependencies {
@@ -31,8 +32,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:18.0.0'
     implementation 'com.karumi:dexter:5.0.0'
     implementation 'com.rmtheis:tess-two:9.0.0'
-    implementation'org.apache.commons:commons-lang3:3.0'
+    implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'commons-io:commons-io:2.6'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation project(path: ':openCVLibrary343')
 
 }

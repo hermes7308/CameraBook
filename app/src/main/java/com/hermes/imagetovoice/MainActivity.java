@@ -44,6 +44,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencv.android.OpenCVLoader;
 
 import java.io.File;
 import java.io.IOException;
