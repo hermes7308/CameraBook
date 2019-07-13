@@ -34,8 +34,7 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.hermes.imagetovoice.ocr.TessFileManager;
-import com.hermes.imagetovoice.ocr.TessOCRTask;
+import com.hermes.imagetovoice.ocr.TesseractOcrTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -44,9 +43,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencv.android.OpenCVLoader;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -69,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AlertDialog progressBarAlertDialog;
     private AlertDialog ttsAlertDialog;
-
-    private Uri outputFileDir = Uri.fromFile(new File(TessFileManager.TESS_OUTPUT_IMG_PATH));
 
     private TextToSpeech textToSpeech;
 
@@ -203,10 +198,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_camera:
-                TessFileManager.initTessPath();
+                TesseractOcrTask.initTessPath();
 
                 final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileDir);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, TesseractOcrTask.outputFileDir);
 
                 if (cameraIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
@@ -253,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == IMAGE_CAPTURE_CODE) {
             switch (resultCode) {
                 case RESULT_OK:
-                    CropImage.activity(outputFileDir).start(this);
+                    CropImage.activity(TesseractOcrTask.outputFileDir).start(this);
                     break;
                 case RESULT_CANCELED:
                     break;
@@ -278,7 +273,8 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri();
                 setTargetImage(resultUri);
-                new Thread(new TessOCRTask(mHandler, this.getAssets(), resultUri)).start();
+
+                new TesseractOcrTask(mHandler, getAssets(), resultUri).execute();
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
                 Log.e(TAG, error.getMessage(), error);
