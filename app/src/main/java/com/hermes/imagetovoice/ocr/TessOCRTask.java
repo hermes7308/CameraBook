@@ -6,26 +6,21 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.hermes.imagetovoice.MainActivity;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 public class TessOCRTask implements Runnable {
-    private MainActivity mainActivity;
+    private static final String TAG = TessOCRTask.class.getName();
+
     private Handler mainActivityHandler;
+    private AssetManager assetManager;
     private Uri imagePath;
 
-    public TessOCRTask(MainActivity mainActivity, Uri imagePath) {
-        this.mainActivity = mainActivity;
-        this.mainActivityHandler = mainActivity.getHandler();
+    public TessOCRTask(Handler handler, AssetManager assetManager, Uri imagePath) {
+        this.mainActivityHandler = handler;
+        this.assetManager = assetManager;
         this.imagePath = imagePath;
     }
 
@@ -33,24 +28,21 @@ public class TessOCRTask implements Runnable {
     public void run() {
         sendStartSignal();
 
-        prepareTessData();
-        String result = convertByOCR();
-        sendResultText(result);
-
-        sendFinishSignal();
-    }
-
-    private void prepareTessData() {
-        String fileList[];
-        try {
-            fileList = mainActivity.getAssets().list("");
-        } catch (IOException e) {
-            e.printStackTrace();
+        TessFileManager.ErrorCode errorCode = TessFileManager.prepareTessData(assetManager);
+        if (errorCode != TessFileManager.ErrorCode.SUCCESS) {
+            sendFailInitializeTessSignal();
             return;
         }
 
-        AssetManager assetManager = mainActivity.getAssets();
-        TessFileManager.prepareTessData(fileList, assetManager);
+        String result = convertByOCR();
+        if (result == null) {
+            sendFailConvertBitmapToTextSignal();
+            return;
+        }
+
+        sendResultText(result);
+
+        sendFinishSignal();
     }
 
     private String convertByOCR() {
@@ -61,45 +53,57 @@ public class TessOCRTask implements Runnable {
 
             return convertBitmapToText(bitmap);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "Couldn't convert image to text.";
-    }
-
-    private String convertBitmapToText(Bitmap bitmap) {
-        try {
-            TessBaseAPI tessBaseAPI = new TessBaseAPI();
-            tessBaseAPI.init(TessFileManager.DATA_PATH, "eng");
-            tessBaseAPI.setImage(bitmap);
-            tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890\'\",.?;:-/@()&");
-
-            String result = tessBaseAPI.getUTF8Text();
-            tessBaseAPI.end();
-
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Couldn't convert bitmap to text!", e);
             return null;
         }
     }
 
-    private void sendFinishSignal() {
-        Message message = new Message();
-        message.what = MainActivity.HandlerCode.FINISH_OCR.getCode();
-        mainActivityHandler.sendMessage(message);
-    }
+    private String convertBitmapToText(Bitmap bitmap) {
+        TessBaseAPI tessBaseAPI = new TessBaseAPI();
+        tessBaseAPI.init(TessFileManager.DATA_PATH, "eng");
+        tessBaseAPI.setImage(bitmap);
+        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890\'\",.?;:-/@()&");
 
-    private void sendStartSignal() {
-        Message message = new Message();
-        message.what = MainActivity.HandlerCode.START_OCR.getCode();
-        mainActivityHandler.sendMessage(message);
+        String result = tessBaseAPI.getUTF8Text();
+        tessBaseAPI.end();
+
+        return result;
     }
 
     private void sendResultText(String text) {
         Message message = new Message();
         message.what = MainActivity.HandlerCode.SET_RESULT.getCode();
         message.obj = text;
+
+        mainActivityHandler.sendMessage(message);
+    }
+
+    private void sendStartSignal() {
+        Message message = new Message();
+        message.what = MainActivity.HandlerCode.START_OCR.getCode();
+
+        mainActivityHandler.sendMessage(message);
+    }
+
+    private void sendFinishSignal() {
+        Message message = new Message();
+        message.what = MainActivity.HandlerCode.FINISH_OCR.getCode();
+
+        mainActivityHandler.sendMessage(message);
+    }
+
+    private void sendFailInitializeTessSignal() {
+        Message message = new Message();
+        message.what = MainActivity.HandlerCode.FAIL_INITIALIZE_TESS.getCode();
+        message.obj = "Couldn't initialize tess data!";
+
+        mainActivityHandler.sendMessage(message);
+    }
+
+    private void sendFailConvertBitmapToTextSignal() {
+        Message message = new Message();
+        message.what = MainActivity.HandlerCode.FAIL_CONVERT_BITMAP_TO_TEXT.getCode();
+        message.obj = "Couldn't convert bitmap to text!";
 
         mainActivityHandler.sendMessage(message);
     }

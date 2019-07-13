@@ -6,7 +6,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,9 +46,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -56,11 +54,14 @@ import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String MY_AD_ID = "ca-app-pub-5539737498268274~4397298097";
-    private static final String TEST_AD_ID = "ca-app-pub-3940256099942544~3347511713";
+    private static final String TAG = MainActivity.class.getName();
+
+    // private static final String AD_ID = "ca-app-pub-5539737498268274~4397298097"; // real
+    private static final String AD_ID = "ca-app-pub-3940256099942544~3347511713"; // test
 
     private static final int IMAGE_CAPTURE_CODE = 1;
     private static final int GALLERY_CODE = 2;
+    public static final String DISABLE_DEATH_ON_FILE_URI_EXPOSURE = "disableDeathOnFileUriExposure";
 
     private ImageView mTargetImage;
     private EditText mResultEditText;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog progressBarAlertDialog;
     private AlertDialog ttsAlertDialog;
 
-    private Uri outputFileDir;
+    private Uri outputFileDir = Uri.fromFile(new File(TessFileManager.TESS_OUTPUT_IMG_PATH));
 
     private TextToSpeech textToSpeech;
 
@@ -77,12 +78,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set for different file system
         if (Build.VERSION.SDK_INT >= 24) {
             try {
-                Method m = StrictMode.class.getMethod("disableDeathOnFileUriExposure");
+                Method m = StrictMode.class.getMethod(DISABLE_DEATH_ON_FILE_URI_EXPOSURE);
                 m.invoke(null);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage(), e);
             }
         }
 
@@ -91,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         mResultEditText = findViewById(R.id.resultEditText);
 
         // AdMob
-        MobileAds.initialize(this, TEST_AD_ID);
+        MobileAds.initialize(this, AD_ID);
         AdView mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -200,24 +202,19 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_camera:
-                try {
-                    String imageFilePath = TessFileManager.initTessPathAndGetOutputPath();
-                    outputFileDir = Uri.fromFile(new File(imageFilePath));
+                TessFileManager.initTessPath();
 
-                    final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileDir);
+                final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileDir);
 
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivityForResult(intent, IMAGE_CAPTURE_CODE);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
                 }
                 break;
             case R.id.menu_gallery:
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-                startActivityForResult(intent, GALLERY_CODE);
+                final Intent galleryIntent = new Intent(Intent.ACTION_PICK);
+                galleryIntent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(galleryIntent, GALLERY_CODE);
                 break;
             case R.id.menu_media_play:
                 String mostRecentUtteranceID = (new Random().nextInt() % 9999999) + ""; // "" is String force
@@ -230,15 +227,20 @@ public class MainActivity extends AppCompatActivity {
                 String text = mResultEditText.getText().toString();
 
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                if (clipboard == null) {
+                    Toast.makeText(getApplicationContext(), "Couldn't copy!", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+
                 ClipData clip = ClipData.newPlainText("Copied Text", text);
                 clipboard.setPrimaryClip(clip);
 
-                Toast.makeText(getApplicationContext(), "successful copy", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Successful copy!", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.menu_clear:
                 mResultEditText.setText(StringUtils.EMPTY);
 
-                Toast.makeText(getApplicationContext(), "successful clear", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Successful clear!", Toast.LENGTH_SHORT).show();
                 break;
         }
 
@@ -271,18 +273,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-
                 Uri resultUri = result.getUri();
-
                 setTargetImage(resultUri);
-
-                new Thread(new TessOCRTask(this, resultUri)).start();
-
+                new Thread(new TessOCRTask(mHandler, this.getAssets(), resultUri)).start();
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                result.getError().printStackTrace();
+                Exception error = result.getError();
+                Log.e(TAG, error.getMessage(), error);
             }
 
             return;
@@ -290,31 +288,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setTargetImage(Uri imageUri) {
-        Bitmap targetBitmap = getBitmapOrNull(imageUri);
-        if (targetBitmap == null) {
-            return;
-        }
-        mTargetImage.setImageBitmap(targetBitmap);
-    }
-
-    private Bitmap getBitmapOrNull(Uri imageUri) {
-        InputStream in;
         try {
-            in = getContentResolver().openInputStream(imageUri);
-            Bitmap targetBitmap = BitmapFactory.decodeStream(in);
-
-            if (in != null) {
-                in.close();
-            }
-
-            return targetBitmap;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            mTargetImage.setImageBitmap(bitmap);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Couldn't get bitmap from uri : " + imageUri.getPath(), e);
         }
-
-        return null;
     }
 
     private Handler mHandler = new Handler() {
@@ -344,19 +323,27 @@ public class MainActivity extends AppCompatActivity {
                 ttsAlertDialog.cancel();
                 return;
             }
+
+            if (HandlerCode.FAIL_INITIALIZE_TESS.equals(msg.what)) {
+                Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (HandlerCode.FAIL_CONVERT_BITMAP_TO_TEXT.equals(msg.what)) {
+                Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
     };
-
-    public Handler getHandler() {
-        return mHandler;
-    }
 
     public enum HandlerCode {
         SET_RESULT(1),
         START_OCR(2),
         FINISH_OCR(3),
         START_TTS(4),
-        FINISH_TTS(5);
+        FINISH_TTS(5),
+        FAIL_INITIALIZE_TESS(6),
+        FAIL_CONVERT_BITMAP_TO_TEXT(7);
 
         private int code;
 
