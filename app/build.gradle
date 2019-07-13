@@ -36,5 +36,6 @@ dependencies {
     implementation 'commons-io:commons-io:2.6'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation project(path: ':openCVLibrary343')
+    implementation project(path: ':scanlibrary')
 
 }
