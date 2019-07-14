@@ -11,7 +11,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
-import com.hermes.imagetovoice.MainActivity;
+import com.hermes.imagetovoice.XSelectActivity;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -140,7 +140,7 @@ public class TesseractOcrTask extends AsyncTask<Void, String, String> {
 
     private void sendResultText(String text) {
         Message message = new Message();
-        message.what = MainActivity.HandlerCode.SET_RESULT.getCode();
+        message.what = XSelectActivity.HandlerCode.SET_RESULT.getCode();
         message.obj = text;
 
         mainActivityHandler.sendMessage(message);
@@ -148,21 +148,21 @@ public class TesseractOcrTask extends AsyncTask<Void, String, String> {
 
     private void sendStartSignal() {
         Message message = new Message();
-        message.what = MainActivity.HandlerCode.START_OCR.getCode();
+        message.what = XSelectActivity.HandlerCode.START_OCR.getCode();
 
         mainActivityHandler.sendMessage(message);
     }
 
     private void sendFinishSignal() {
         Message message = new Message();
-        message.what = MainActivity.HandlerCode.FINISH_OCR.getCode();
+        message.what = XSelectActivity.HandlerCode.FINISH_OCR.getCode();
 
         mainActivityHandler.sendMessage(message);
     }
 
     private void sendFailInitializeTessSignal() {
         Message message = new Message();
-        message.what = MainActivity.HandlerCode.FAIL_INITIALIZE_TESS.getCode();
+        message.what = XSelectActivity.HandlerCode.FAIL_INITIALIZE_TESS.getCode();
         message.obj = "Couldn't initialize tess data!";
 
         mainActivityHandler.sendMessage(message);
@@ -170,7 +170,7 @@ public class TesseractOcrTask extends AsyncTask<Void, String, String> {
 
     private void sendFailConvertBitmapToTextSignal() {
         Message message = new Message();
-        message.what = MainActivity.HandlerCode.FAIL_CONVERT_BITMAP_TO_TEXT.getCode();
+        message.what = XSelectActivity.HandlerCode.FAIL_CONVERT_BITMAP_TO_TEXT.getCode();
         message.obj = "Couldn't convert bitmap to text!";
 
         mainActivityHandler.sendMessage(message);

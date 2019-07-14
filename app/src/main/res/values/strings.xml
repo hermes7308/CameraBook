@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">ITV</string>
+    <string name="app_name">Camera Book</string>
+
+    <!--real-->
+    <!--<string name="ad_app_id">ca-app-pub-5539737498268274~4397298097</string>-->
+    <!--<string name="ad_unit_id">ca-app-pub-5539737498268274/9040440055</string>-->
+
+    <!--test-->
+    <string name="ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>
