@@ -10,10 +10,25 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/bottom_background_color"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal"
         android:padding="@dimen/bottom_bar_padding"
-        android:text="@string/scan"></Button>
+        android:text="@string/scan"
+        android:textColor="@color/bottom_text_color"
+        android:textStyle="bold"></Button>
+
+    <Button
+        android:id="@+id/rotateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="30dp"
+        android:background="@color/colorPrimary"
+        android:textColor="#FEC308"
+        android:textStyle="bold"
+        android:text="Rotate" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -32,6 +32,7 @@ import java.util.Map;
 public class ScanFragment extends Fragment {
 
     private Button scanButton;
+    private Button rotateButton;
     private ImageView sourceImageView;
     private FrameLayout sourceFrame;
     private PolygonView polygonView;
@@ -61,11 +62,13 @@ public class ScanFragment extends Fragment {
     }
 
     private void init() {
-        sourceImageView = (ImageView) view.findViewById(R.id.sourceImageView);
-        scanButton = (Button) view.findViewById(R.id.scanButton);
+        sourceImageView = view.findViewById(R.id.sourceImageView);
+        scanButton = view.findViewById(R.id.scanButton);
         scanButton.setOnClickListener(new ScanButtonClickListener());
-        sourceFrame = (FrameLayout) view.findViewById(R.id.sourceFrame);
-        polygonView = (PolygonView) view.findViewById(R.id.polygonView);
+        rotateButton = view.findViewById(R.id.rotateButton);
+        rotateButton.setOnClickListener(new RotateButtonClickListener());
+        sourceFrame = view.findViewById(R.id.sourceFrame);
+        polygonView = view.findViewById(R.id.polygonView);
         sourceFrame.post(new Runnable() {
             @Override
             public void run() {
@@ -105,6 +108,7 @@ public class ScanFragment extends Fragment {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(tempBitmap.getWidth() + 2 * padding, tempBitmap.getHeight() + 2 * padding);
         layoutParams.gravity = Gravity.CENTER;
         polygonView.setLayoutParams(layoutParams);
+
     }
 
     private Map<Integer, PointF> getEdgePoints(Bitmap tempBitmap) {
@@ -213,7 +217,7 @@ public class ScanFragment extends Fragment {
 
         @Override
         protected Bitmap doInBackground(Void... params) {
-            Bitmap bitmap =  getScannedBitmap(original, points);
+            Bitmap bitmap = getScannedBitmap(original, points);
             Uri uri = Utils.getUri(getActivity(), bitmap);
             scanner.onScanFinish(uri);
             return bitmap;
@@ -237,4 +241,13 @@ public class ScanFragment extends Fragment {
         progressDialogFragment.dismissAllowingStateLoss();
     }
 
+    private class RotateButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Bitmap rotatedBitmap = Utils.rotateImage(original, 90);
+            setBitmap(rotatedBitmap);
+
+            original = rotatedBitmap;
+        }
+    }
 }

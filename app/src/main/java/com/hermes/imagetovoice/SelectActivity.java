@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -81,18 +80,18 @@ public class SelectActivity extends AppCompatActivity {
 
         if (requestCode == RequestCode.CAMERA.getCode() || requestCode == RequestCode.GALLERY.getCode()) {
             Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
-            Bitmap bitmap = convertUriToBitmapAndNullable(uri);
+            Bitmap bitmap = getBitmapWithNullable(uri);
             if (bitmap == null) {
-                Toast.makeText(getApplicationContext(), "bitmap is null", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "There are some problem your image path!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            Toast.makeText(getApplicationContext(), "bitmap is not null", Toast.LENGTH_SHORT).show();
+            
             return;
         }
     }
 
-    private Bitmap convertUriToBitmapAndNullable(Uri uri) {
+    private Bitmap getBitmapWithNullable(Uri uri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
             getContentResolver().delete(uri, null, null);

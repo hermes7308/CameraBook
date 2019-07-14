@@ -17,8 +17,7 @@
             android:layout_width="0sp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/colorPrimaryDark"
-            tools:context=".SelectActivity">
+            android:background="@color/colorPrimary">
 
             <ImageView
                 android:layout_width="120dp"
@@ -35,8 +34,7 @@
             android:layout_width="0sp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#FFFFFF"
-            tools:context=".SelectActivity">
+            android:background="#FFFFFF">
 
             <ImageView
                 android:id="@+id/imageView2"
@@ -46,7 +44,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_image_primary_dark_24dp" />
+                app:srcCompat="@drawable/ic_image_primary_24dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
@@ -54,7 +52,7 @@
         android:id="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorPrimary"
         app:adSize="BANNER"
         app:adUnitId="@string/ad_unit_id" />
 

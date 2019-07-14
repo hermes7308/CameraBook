@@ -161,6 +161,7 @@ public class PickImageFragment extends Fragment {
         } else {
             getActivity().finish();
         }
+
         if (bitmap != null) {
             postImagePick(bitmap);
         }
