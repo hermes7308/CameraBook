@@ -22,7 +22,7 @@ import java.io.InputStream;
 public class TesseractOcrTask extends AsyncTask<Void, String, String> {
     private static final String TAG = TesseractOcrTask.class.getName();
 
-    private static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/tess";
+    private static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/CameraBook";
     private static final String TESS_DATA_PATH = DATA_PATH + "/tessdata";
     private static final String TESS_IMG_PATH = DATA_PATH + "/img";
     private static final String TESS_TMP_PATH = DATA_PATH + "/tmp";
