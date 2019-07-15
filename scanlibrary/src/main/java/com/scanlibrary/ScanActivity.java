@@ -1,17 +1,19 @@
 package com.scanlibrary;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.ComponentCallbacks2;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by jhansi on 28/03/15.
  */
-public class ScanActivity extends Activity implements IScanner, ComponentCallbacks2 {
+public class ScanActivity extends AppCompatActivity implements IScanner, ComponentCallbacks2 {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +96,14 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
                    If the event is TRIM_MEMORY_COMPLETE, the process will be one of
                    the first to be terminated.
                 */
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.low_memory)
-                        .setMessage(R.string.low_memory_message)
-                        .create()
-                        .show();
+
+//                Toast.makeText(this, getResources().getString(R.string.low_memory), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getString(R.string.low_memory_message), Toast.LENGTH_LONG).show();
+//                new AlertDialog.Builder(this)
+//                        .setTitle(R.string.low_memory)
+//                        .setMessage(R.string.low_memory_message)
+//                        .create()
+//                        .show();
                 break;
             default:
                 /*

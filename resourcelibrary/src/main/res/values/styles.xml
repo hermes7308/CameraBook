@@ -1,0 +1,29 @@
+<resources>
+    <style name="AppThemeFullScreenNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@color/colorSecondPrimary</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorSecondPrimary</item>
+        <item name="android:textColorPrimary">@color/colorSecondPrimary</item>
+    </style>
+
+    <style name="AppThemeActionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="android:titleTextStyle">@style/AppThemeTitleTextStyle</item>
+    </style>
+
+    <style name="AppThemeTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/colorSecondPrimary</item>
+    </style>
+
+</resources>

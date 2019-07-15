@@ -29,7 +29,6 @@ public class SelectActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // AdMob
         MobileAds.initialize(this, getResources().getString(R.string.ad_app_id));
@@ -74,7 +73,6 @@ public class SelectActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode != RESULT_OK) {
-            Log.e(TAG, "RequestCode : " + requestCode + "ResultCode : " + resultCode + ", There are some problem in your intent!");
             return;
         }
 
@@ -104,8 +102,8 @@ public class SelectActivity extends AppCompatActivity {
     }
 
     enum RequestCode {
-        CAMERA(99),
-        GALLERY(99);
+        CAMERA(1),
+        GALLERY(2);
 
         private int code;
 

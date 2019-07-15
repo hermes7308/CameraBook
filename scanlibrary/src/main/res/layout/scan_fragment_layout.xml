@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
@@ -16,19 +17,6 @@
         android:text="@string/scan"
         android:textColor="@color/bottom_text_color"
         android:textStyle="bold"></Button>
-
-    <Button
-        android:id="@+id/rotateButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="30dp"
-        android:background="@color/colorPrimary"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:text="Rotate" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -60,5 +48,18 @@
             android:visibility="gone"></com.scanlibrary.PolygonView>
     </FrameLayout>
 
+    <ImageView
+        android:id="@+id/rotateButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:background="@color/colorPrimary"
+        android:padding="5dp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:srcCompat="@drawable/ic_rotate_right_second_primary_24dp" />
 
 </RelativeLayout>

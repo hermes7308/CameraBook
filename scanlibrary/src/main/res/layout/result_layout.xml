@@ -9,7 +9,8 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical">
+        android:layout_gravity="center_vertical"
+        android:background="@color/colorSecondPrimary">
 
         <Button
             android:id="@+id/original"
@@ -17,9 +18,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/ic_image"
+            android:drawableTop="@drawable/ic_image_primary_24dp"
+            android:padding="5dp"
             android:text="Original"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/colorPrimary" />
 
         <Button
             android:id="@+id/magicColor"
@@ -27,10 +29,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/ic_enhamce_image"
+            android:drawableTop="@drawable/ic_format_color_fill_primary_24dp"
+            android:padding="5dp"
             android:singleLine="true"
             android:text="Magic color"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/colorPrimary" />
 
         <Button
             android:id="@+id/grayMode"
@@ -38,10 +41,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/ic_gray"
+            android:drawableTop="@drawable/ic_cloud_primary_24dp"
+            android:padding="5dp"
             android:singleLine="true"
             android:text="Gray Mode"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/colorPrimary" />
 
         <Button
             android:id="@+id/BWMode"
@@ -49,10 +53,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:drawableTop="@drawable/ic_black_and_white"
+            android:drawableTop="@drawable/ic_invert_colors_primary_24dp"
+            android:padding="5dp"
             android:singleLine="true"
             android:text="B and W"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/colorPrimary" />
     </LinearLayout>
 
     <Button

@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ import java.util.Map;
 public class ScanFragment extends Fragment {
 
     private Button scanButton;
-    private Button rotateButton;
+    private ImageView rotateButton;
     private ImageView sourceImageView;
     private FrameLayout sourceFrame;
     private PolygonView polygonView;
@@ -62,13 +63,13 @@ public class ScanFragment extends Fragment {
     }
 
     private void init() {
-        sourceImageView = view.findViewById(R.id.sourceImageView);
+        sourceImageView = (ImageView) view.findViewById(R.id.sourceImageView);
         scanButton = view.findViewById(R.id.scanButton);
         scanButton.setOnClickListener(new ScanButtonClickListener());
-        rotateButton = view.findViewById(R.id.rotateButton);
+        rotateButton = (ImageView) view.findViewById(R.id.rotateButton);
         rotateButton.setOnClickListener(new RotateButtonClickListener());
-        sourceFrame = view.findViewById(R.id.sourceFrame);
-        polygonView = view.findViewById(R.id.polygonView);
+        sourceFrame = (FrameLayout) view.findViewById(R.id.sourceFrame);
+        polygonView = (PolygonView) view.findViewById(R.id.polygonView);
         sourceFrame.post(new Runnable() {
             @Override
             public void run() {
