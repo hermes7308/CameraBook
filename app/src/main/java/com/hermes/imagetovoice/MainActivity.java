@@ -24,6 +24,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final int PLAY_TIME = 2000;
+    public static final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,17 +32,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        YoYo.with(Techniques.FadeIn)
-                .duration(PLAY_TIME)
-                .withListener(animatorListener)
-                .playOn(this.<TextView>findViewById(R.id.intro_logo));
-
         // Permission
         Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withPermissions(PERMISSIONS)
                 .withListener(multiplePermissionsListener)
                 .check();
     }
+
+    private MultiplePermissionsListener multiplePermissionsListener = new MultiplePermissionsListener() {
+        @Override
+        public void onPermissionsChecked(MultiplePermissionsReport report) {
+            if (!report.areAllPermissionsGranted()) {
+                Toast.makeText(getApplicationContext(), "If you don't give permission, you can't use this application!", Toast.LENGTH_LONG).show();
+                exit();
+                return;
+            }
+
+            startAnimation();
+        }
+
+        @Override
+        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+            if (PERMISSIONS.length != permissions.size()){
+                token.continuePermissionRequest();
+            }
+        }
+    };
 
     private Animator.AnimatorListener animatorListener = new Animator.AnimatorListener() {
         @Override
@@ -65,21 +81,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private MultiplePermissionsListener multiplePermissionsListener = new MultiplePermissionsListener() {
-        @Override
-        public void onPermissionsChecked(MultiplePermissionsReport report) {
-            if (!report.areAllPermissionsGranted()) {
-                Toast.makeText(getApplicationContext(), "If you don't give permission, you can't use this application!", Toast.LENGTH_LONG).show();
-                exit();
-                return;
-            }
-        }
-
-        @Override
-        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-
-        }
-    };
+    private void startAnimation() {
+        YoYo.with(Techniques.FadeIn)
+                .duration(PLAY_TIME)
+                .withListener(animatorListener)
+                .playOn(this.<TextView>findViewById(R.id.intro_logo));
+    }
 
     private void goToNextActivity() {
         Intent intent = new Intent(this, SelectActivity.class);
