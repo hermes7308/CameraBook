@@ -5,7 +5,6 @@ android {
     buildToolsVersion "29.0.0"
 
     defaultConfig {
-        vectorDrawables.useSupportLibrary=true
         minSdkVersion 15
         targetSdkVersion 29
         versionCode 1
@@ -14,6 +13,7 @@ android {
                 {
                     moduleName "Scanner"
                 }
+        vectorDrawables.useSupportLibrary=true
     }
     sourceSets.main
             {
