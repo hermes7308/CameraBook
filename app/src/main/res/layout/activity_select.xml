@@ -10,12 +10,30 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:orientation="vertical"
         android:layout_weight="1">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/camera_area"
-            android:layout_width="0sp"
-            android:layout_height="match_parent"
+            android:id="@+id/openCapturedPage"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/colorSecondPrimary">
+
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_folder_primary_24dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/addNewPage"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@color/colorThirdPrimary">
 
@@ -26,25 +44,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_camera_alt_primary_24dp" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/gallery_area"
-            android:layout_width="0sp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/colorSecondPrimary">
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_image_primary_24dp" />
+                app:srcCompat="@drawable/ic_add_box_primary_24dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 

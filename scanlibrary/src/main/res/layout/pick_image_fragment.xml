@@ -22,7 +22,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_camera_alt_white_24dp" />
+            app:srcCompat="@drawable/ic_camera_alt_third_primary_24dp" />
 
         <ImageButton
             android:id="@+id/selectButton"
