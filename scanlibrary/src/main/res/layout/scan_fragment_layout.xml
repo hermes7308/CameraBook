@@ -22,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/scanButton"
+        android:layout_below="@id/rotateButton"
         android:layout_gravity="center"
         android:layout_margin="@dimen/scanPadding">
 

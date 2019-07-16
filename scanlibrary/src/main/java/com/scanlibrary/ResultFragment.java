@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +16,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by jhansi on 29/03/15.
  */
 public class ResultFragment extends Fragment {
+    private static final String TAG = ResultFragment.class.getName();
 
     private View view;
     private ImageView scannedImageView;
@@ -32,6 +38,8 @@ public class ResultFragment extends Fragment {
     private Button bwButton;
     private Bitmap transformed;
     private static ProgressDialogFragment progressDialogFragment;
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
     public ResultFragment() {
     }
@@ -87,15 +95,19 @@ public class ResultFragment extends Fragment {
             AsyncTask.execute(new Runnable() {
                 @Override
                 public void run() {
+                    String fileName = "IMG_" + sdf.format(new Date()) + ".jpg";
+
                     try {
                         Intent data = new Intent();
                         Bitmap bitmap = transformed;
                         if (bitmap == null) {
                             bitmap = original;
                         }
-                        Uri uri = Utils.getUri(getActivity(), bitmap);
-                        data.putExtra(ScanConstants.SCANNED_RESULT, uri);
+
+                        String captureImagePath = saveImage(fileName, bitmap);
+                        data.putExtra(ScanConstants.SCANNED_RESULT, captureImagePath);
                         getActivity().setResult(Activity.RESULT_OK, data);
+
                         original.recycle();
                         System.gc();
                         getActivity().runOnUiThread(new Runnable() {
@@ -106,7 +118,8 @@ public class ResultFragment extends Fragment {
                             }
                         });
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Couldn't save capture image file! : " + fileName, e);
+                        Toast.makeText(getActivity(), "Couldn't save capture image!", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -225,6 +238,21 @@ public class ResultFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private String saveImage(String fileName, Bitmap bitmap) throws IOException {
+        File directory = new File(ScanConstants.CAPTURE_IMAGE_PATH);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        File captureImageFile = new File(ScanConstants.CAPTURE_IMAGE_PATH, fileName);
+        FileOutputStream out = new FileOutputStream(captureImageFile);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        out.flush();
+        out.close();
+
+        return captureImageFile.getAbsolutePath();
     }
 
     protected synchronized void showProgressDialog(String message) {

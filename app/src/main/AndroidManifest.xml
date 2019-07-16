@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.hermes.camerabook.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppThemeFullScreenNoActionBar">
             <intent-filter>
@@ -29,13 +29,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.hermes.camerabook.SelectActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize">
-
-        </activity>
-
-        <activity android:name="com.hermes.camerabook.XSelectActivity"></activity>
-
+        <activity
+            android:name=".SelectActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"></activity>
+        <activity android:name=".TextDetectionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/AppThemeFullScreenNoActionBar"></activity>
+        <activity android:name=".XSelectActivity" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" /> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->

@@ -1,13 +1,8 @@
 package com.hermes.camerabook;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,8 +13,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
-
-import java.io.IOException;
 
 public class SelectActivity extends AppCompatActivity {
     private static final String TAG = SelectActivity.class.getName();
@@ -76,27 +69,11 @@ public class SelectActivity extends AppCompatActivity {
         }
 
         if (requestCode == RequestCode.CAMERA.getCode() || requestCode == RequestCode.GALLERY.getCode()) {
-            Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
-            Bitmap bitmap = getBitmapWithNullable(uri);
-            if (bitmap == null) {
-                Toast.makeText(getApplicationContext(), "There are some problem your image path!", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            String captureImagePath = data.getExtras().getString(ScanConstants.SCANNED_RESULT);
 
-
-
-            return;
-        }
-    }
-
-    private Bitmap getBitmapWithNullable(Uri uri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            getContentResolver().delete(uri, null, null);
-            return bitmap;
-        } catch (IOException e) {
-            Log.e(TAG, "Couldn't convert uri to bitmap. uri :" + uri.getPath(), e);
-            return null;
+            Intent intent = new Intent(this, TextDetectionActivity.class);
+            intent.putExtra(TextDetectionActivity.CAPTURE_IMAGE_PATH_KEY, captureImagePath);
+            startActivity(intent);
         }
     }
 

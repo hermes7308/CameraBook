@@ -15,4 +15,7 @@ public class FilePath {
     // Tesseract
     private static final String TESS_DATA_PATH = DATA_PATH + "/tessdata";
     private static final String TESS_TRAINEDDATA = ".traineddata";
+
+    // ScanLibrary
+    private static final String SCAN_DATA_PATH = DATA_PATH + "/scan";
 }

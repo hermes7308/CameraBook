@@ -16,6 +16,7 @@ public class ScanConstants {
     public final static String SCANNED_RESULT = "scannedResult";
     public final static String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/CameraBook";
     public final static String IMAGE_PATH = DATA_PATH + "/sample";
+    public final static String CAPTURE_IMAGE_PATH = DATA_PATH + "/capture";
 
     public final static String SELECTED_BITMAP = "selectedBitmap";
 }
