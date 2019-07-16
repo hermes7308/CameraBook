@@ -2,9 +2,7 @@ package com.hermes.camerabook;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +17,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
-
-import java.lang.reflect.Method;
 
 public class SelectActivity extends AppCompatActivity {
     private static final String TAG = SelectActivity.class.getName();
@@ -91,12 +87,6 @@ public class SelectActivity extends AppCompatActivity {
         startActivityForResult(galleryIntent,  RequestCode.CAPTURED_PAGE.getCode());
     }
 
-    private void openTextDetection(String imagePath) {
-        Intent intent = new Intent(this, TextDetectionActivity.class);
-        intent.putExtra(TextDetectionActivity.CAPTURE_IMAGE_PATH_KEY, imagePath);
-        startActivity(intent);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode != RESULT_OK) {
@@ -105,14 +95,17 @@ public class SelectActivity extends AppCompatActivity {
 
         if (requestCode == RequestCode.CAMERA.getCode() || requestCode == RequestCode.MEDIA.getCode()) {
             String captureImagePath = data.getExtras().getString(ScanConstants.SCANNED_RESULT);
-            openTextDetection(captureImagePath);
+            Intent intent = new Intent(this, TextDetectionActivity.class);
+            intent.putExtra(TextDetectionActivity.CAPTURE_IMAGE_PATH_KEY, captureImagePath);
+            startActivity(intent);
             return;
         }
 
         if (requestCode == RequestCode.CAPTURED_PAGE.getCode()) {
             Uri uri = data.getData();
-            String imagePath = uri.getPath();
-            openTextDetection(imagePath);
+            Intent intent = new Intent(this, TextDetectionActivity.class);
+            intent.putExtra(TextDetectionActivity.IMAGE_URI_KEY, uri);
+            startActivity(intent);
             return;
         }
     }
